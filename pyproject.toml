@@ -1,0 +1,114 @@
+[build-system]
+requires = ["setuptools>=64", "cffi>=1.0", "numpy"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pybirewirex"
+version = "0.1.0"
+description = "Fast degree-preserving network rewiring — Python port of the BiRewire R package"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "GPL-3.0-or-later" }
+authors = [{ name = "Lorenzo Nemati", email = "lorenzo.nemati@sns.it" }]
+keywords = ["network", "rewiring", "bipartite", "graph", "null model", "genomics", "switching algorithm"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Typing :: Typed",
+]
+dependencies = [
+    "numpy>=1.23",
+    "scipy>=1.9",
+    "cffi>=1.0",
+]
+
+[project.urls]
+Homepage      = "https://github.com/lorenzoamir/PyBiRewireX"
+Documentation = "https://pybirewirex.readthedocs.io"
+Repository    = "https://github.com/lorenzoamir/PyBiRewireX"
+"Bug Tracker" = "https://github.com/lorenzoamir/PyBiRewireX/issues"
+Changelog     = "https://github.com/lorenzoamir/PyBiRewireX/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+# igraph / networkx graph objects as inputs
+graph = ["igraph>=0.10", "networkx>=3.0"]
+# dependencies required by scripts/ and docs examples
+vis = ["matplotlib>=3.5", "scikit-learn>=1.1"]
+# everything needed for local development
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.4",
+    "mypy>=1.5",
+    "cibuildwheel>=2.16",
+    "igraph>=0.10",
+    "networkx>=3.0",
+    "matplotlib>=3.5",
+    "scikit-learn>=1.1",
+    "jupyter>=1.0",
+    "notebook>=7.0",
+    "sphinx>=7.0",
+    "sphinx-rtd-theme>=2.0",
+    "nbsphinx>=0.9",
+    "myst-parser>=2.0",
+    "pandoc",
+]
+# Sphinx + ReadTheDocs build dependencies
+docs = [
+    "sphinx>=7.0",
+    "sphinx-rtd-theme>=2.0",
+    "nbsphinx>=0.9",
+    "myst-parser>=2.0",
+    "matplotlib>=3.5",
+    "scikit-learn>=1.1",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pybirewirex*"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts   = "-v --tb=short"
+
+[tool.cibuildwheel]
+# Build for CPython 3.10–3.13 on all major platforms
+build = "cp310-* cp311-* cp312-* cp313-*"
+# Skip 32-bit builds and PyPy
+skip  = "*-win32 *-manylinux_i686 pp*"
+
+[tool.cibuildwheel.linux]
+archs = ["x86_64", "aarch64"]
+
+[tool.cibuildwheel.macos]
+archs = ["x86_64", "arm64"]
+
+[tool.cibuildwheel.windows]
+archs = ["AMD64"]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.20.2",
+    "pytest>=9.0.3",
+    "ruff>=0.15.12",
+    "setuptools>=82.0.1",
+]
