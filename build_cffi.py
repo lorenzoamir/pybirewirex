@@ -1,3 +1,5 @@
+import sys
+
 from cffi import FFI
 
 ffi = FFI()
@@ -9,8 +11,8 @@ ffi.set_source(
     """,
     sources=["c_src/birewire_core.c"],
     include_dirs=["c_src"],
-    extra_compile_args=["-O2", "-std=c99", "-Wall"],
-    libraries=["m"],
+    extra_compile_args=["-O2", "-std=c99", "-Wall"] if sys.platform != "win32" else ["/O2"],
+    libraries=["m"] if sys.platform != "win32" else [],
 )
 
 ffi.cdef("""
