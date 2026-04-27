@@ -94,11 +94,11 @@ Jaccard similarity between the original network and its rewired snapshots,
 sampled every `step` switching steps across `n_networks` independent runs.
 The red line marks the analytical bound N.
 
-**Original (R):**
+**Original BiRewire (R):**
 
 ![R analysis figure](.github/images/r_analysis.png)
 
-**Python reproduction:**
+**PyBiRewireX (Python):**
 
 ![Python analysis figure](.github/images/demo_analysis.png)
 
@@ -109,11 +109,11 @@ Each point is a sampled network; colour encodes sampling order (blue = first,
 red = last). At small step counts the chain moves slowly (tight clusters); at
 `k = N` and beyond the samples are uniformly distributed (scattered cloud).
 
-**Original (R):**
+**Original BiRewire (R):**
 
 ![R monitoring figure](.github/images/r_monitoring.png)
 
-**Python reproduction:**
+**PyBiRewireX (Python):**
 
 ![Python monitoring figure](.github/images/demo_monitoring.png)
 
