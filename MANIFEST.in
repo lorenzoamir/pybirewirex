@@ -1,2 +1,2 @@
 include build_cffi.py
-include c_src/birewire_core.c
+recursive-include c_src *
