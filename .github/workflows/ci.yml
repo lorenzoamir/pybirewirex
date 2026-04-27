@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     # Skip if the commit was already made by this job to avoid infinite loops
     if: github.actor != 'github-actions[bot]'
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
