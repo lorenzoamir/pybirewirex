@@ -116,8 +116,11 @@ def analysis_undirected(
     e = int(np.sum(np.triu(m, k=1)))
     t = n * (n - 1) // 2
 
-    N = _resolve_max_iter(max_iter, e, t, accuracy, exact)
-    ns = _n_steps(N, step)
+    # N_bound is always the analytical bound, stored in the result for plotting.
+    # n_run is what we actually iterate — may be larger when max_iter is explicit.
+    N_bound = bound_undirected(e, t, accuracy, exact)
+    n_run   = _resolve_max_iter(max_iter, e, t, accuracy, exact)
+    ns = _n_steps(n_run, step)
     base_seed = _make_seed(seed)
 
     if not _C_AVAILABLE:
@@ -126,9 +129,9 @@ def analysis_undirected(
         all_scores = np.zeros((n_networks, ns), dtype=np.float64)
         for i in range(n_networks):
             net_seed = (base_seed + i) & 0xFFFFFFFFFFFFFFFF
-            scores_1d, n_written = _fb.analysis_undirected(m, N, ns, step, net_seed, verbose)
+            scores_1d, n_written = _fb.analysis_undirected(m, n_run, ns, step, net_seed, verbose)
             all_scores[i, :n_written] = scores_1d[:n_written]
-        return AnalysisResult(N=N, scores=all_scores, step=step)
+        return AnalysisResult(N=N_bound, scores=all_scores, step=step)
 
     all_scores = np.zeros((n_networks, ns), dtype=np.float64)
 
@@ -139,7 +142,7 @@ def analysis_undirected(
 
         net_seed = (base_seed + i) & 0xFFFFFFFFFFFFFFFF
         ret = lib.bw_analysis_undirected(
-            buf, n, n, scores_buf, step, N, int(verbose), 0, net_seed
+            buf, n, n, scores_buf, step, n_run, int(verbose), 0, net_seed
         )
         if ret == -2:
             raise MemoryError("C backend out of memory")
@@ -148,4 +151,4 @@ def analysis_undirected(
         for k in range(n_written):
             all_scores[i, k] = scores_buf[k]
 
-    return AnalysisResult(N=N, scores=all_scores, step=step)
+    return AnalysisResult(N=N_bound, scores=all_scores, step=step)
