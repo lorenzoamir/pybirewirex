@@ -1,6 +1,6 @@
 import math
-from pybirewirex._bounds import bound_bipartite, bound_undirected
 
+from pybirewirex._bounds import bound_bipartite, bound_undirected
 
 # Reference values computed by hand from the R formulas.
 # Bipartite: e=10, t=20, accuracy=1e-5

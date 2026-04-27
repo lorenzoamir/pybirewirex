@@ -236,9 +236,7 @@ def rewire_sparse_bipartite(
         return
 
     # Set of (from, to) for O(1) edge existence check
-    edge_set: set[tuple[int, int]] = set(
-        zip(from_arr.tolist(), to_arr.tolist())
-    )
+    edge_set: set[tuple[int, int]] = set(zip(from_arr.tolist(), to_arr.tolist()))
 
     for n in range(N):
         if verbose:

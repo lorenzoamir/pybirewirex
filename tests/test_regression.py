@@ -68,7 +68,9 @@ class TestBipartiteSelfRegression:
         from pybirewirex.bipartite import analysis_bipartite
 
         m = _load_npy("bipartite_input.npy")
-        result = analysis_bipartite(m, step=10, max_iter=500, n_networks=5, verbose=False, seed=SEED)
+        result = analysis_bipartite(
+            m, step=10, max_iter=500, n_networks=5, verbose=False, seed=SEED
+        )
         reference = _load_npy("bipartite_scores.npy")
         np.testing.assert_allclose(result.scores, reference, rtol=0, atol=1e-15)
 
@@ -76,7 +78,9 @@ class TestBipartiteSelfRegression:
         from pybirewirex.bipartite import analysis_bipartite
 
         m = _load_npy("bipartite_input.npy")
-        result = analysis_bipartite(m, step=10, max_iter=500, n_networks=5, verbose=False, seed=SEED)
+        result = analysis_bipartite(
+            m, step=10, max_iter=500, n_networks=5, verbose=False, seed=SEED
+        )
         reference_N = int(_load_npy("bipartite_N.npy")[0])
         assert result.N == reference_N
 
@@ -123,7 +127,9 @@ class TestUndirectedSelfRegression:
         from pybirewirex.undirected import analysis_undirected
 
         m = _load_npy("undirected_input.npy")
-        result = analysis_undirected(m, step=10, max_iter=500, n_networks=5, verbose=False, seed=SEED)
+        result = analysis_undirected(
+            m, step=10, max_iter=500, n_networks=5, verbose=False, seed=SEED
+        )
         reference = _load_npy("undirected_scores.npy")
         np.testing.assert_allclose(result.scores, reference, rtol=0, atol=1e-15)
 
@@ -163,18 +169,18 @@ class TestRCrossCheckBipartite:
     def test_python_same_row_sums_as_r(self) -> None:
         from pybirewirex.bipartite import rewire_bipartite
 
-        py_rewired = rewire_bipartite(self.r_input, max_iter=500, verbose=False, seed=SEED)
-        np.testing.assert_array_equal(
-            self.r_input.sum(axis=1), py_rewired.sum(axis=1)
+        py_rewired = rewire_bipartite(
+            self.r_input, max_iter=500, verbose=False, seed=SEED
         )
+        np.testing.assert_array_equal(self.r_input.sum(axis=1), py_rewired.sum(axis=1))
 
     def test_python_same_col_sums_as_r(self) -> None:
         from pybirewirex.bipartite import rewire_bipartite
 
-        py_rewired = rewire_bipartite(self.r_input, max_iter=500, verbose=False, seed=SEED)
-        np.testing.assert_array_equal(
-            self.r_input.sum(axis=0), py_rewired.sum(axis=0)
+        py_rewired = rewire_bipartite(
+            self.r_input, max_iter=500, verbose=False, seed=SEED
         )
+        np.testing.assert_array_equal(self.r_input.sum(axis=0), py_rewired.sum(axis=0))
 
     def test_r_scores_first_col_is_one(self) -> None:
         r_scores = _load_r_csv("bipartite_scores")
@@ -206,7 +212,9 @@ class TestRCrossCheckUndirected:
     def test_python_same_degree_sequence_as_r(self) -> None:
         from pybirewirex.undirected import rewire_undirected
 
-        py_rewired = rewire_undirected(self.r_input, max_iter=500, verbose=False, seed=SEED)
+        py_rewired = rewire_undirected(
+            self.r_input, max_iter=500, verbose=False, seed=SEED
+        )
         np.testing.assert_array_equal(
             np.sort(self.r_input.sum(axis=1)),
             np.sort(py_rewired.sum(axis=1)),

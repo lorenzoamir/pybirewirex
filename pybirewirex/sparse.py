@@ -1,7 +1,8 @@
 """Sparse and graph input dispatch for rewiring functions."""
+
 from __future__ import annotations
 
-from typing import Any, Union
+from typing import Any
 
 import numpy as np
 
@@ -70,12 +71,8 @@ def _bipartite_to_coo(
         )
 
     if _is_networkx(graph):
-        nodes0 = sorted(
-            n for n, d in graph.nodes(data=True) if d.get("bipartite") == 0
-        )
-        nodes1 = sorted(
-            n for n, d in graph.nodes(data=True) if d.get("bipartite") == 1
-        )
+        nodes0 = sorted(n for n, d in graph.nodes(data=True) if d.get("bipartite") == 0)
+        nodes1 = sorted(n for n, d in graph.nodes(data=True) if d.get("bipartite") == 1)
         map0 = {n: i for i, n in enumerate(nodes0)}
         map1 = {n: i for i, n in enumerate(nodes1)}
         rows: list[int] = []
@@ -138,9 +135,7 @@ def _bipartite_to_coo(
     raise TypeError(f"Unsupported graph type: {type(graph)!r}")
 
 
-def _bipartite_from_coo(
-    from_arr: np.ndarray, to_arr: np.ndarray, meta: dict
-) -> Any:
+def _bipartite_from_coo(from_arr: np.ndarray, to_arr: np.ndarray, meta: dict) -> Any:
     """Reconstruct original bipartite type from rewired edge list."""
     if meta["input_type"] == "scipy":
         import scipy.sparse as sp  # noqa: PLC0415
@@ -295,7 +290,7 @@ def _undirected_from_coo(
 
 def rewire_bipartite_sparse(
     graph: Any,
-    max_iter: Union[int, str] = "n",
+    max_iter: int | str = "n",
     accuracy: float = 1e-5,
     exact: bool = False,
     verbose: bool = True,
@@ -329,7 +324,7 @@ def rewire_bipartite_sparse(
 
 def rewire_undirected_sparse(
     graph: Any,
-    max_iter: Union[int, str] = "n",
+    max_iter: int | str = "n",
     accuracy: float = 1e-5,
     exact: bool = False,
     verbose: bool = True,

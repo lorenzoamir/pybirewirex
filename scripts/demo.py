@@ -24,25 +24,27 @@ Run:
 
 from __future__ import annotations
 
-import numpy as np
 import matplotlib
+import numpy as np
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-from matplotlib.colors import Normalize
-from sklearn.manifold import TSNE
-from sklearn.decomposition import PCA
-from scipy.stats import t as t_dist
 from pathlib import Path
 
+import matplotlib.pyplot as plt
+from matplotlib.colors import Normalize
+from scipy.stats import t as t_dist
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+
 import pybirewirex as pbr
-from pybirewirex.similarity import jaccard
 from pybirewirex._bounds import bound_bipartite
+from pybirewirex.similarity import jaccard
 
 OUT = Path(__file__).parent / "output"
 OUT.mkdir(parents=True, exist_ok=True)
 
 SEED = 42
-rng  = np.random.default_rng(SEED)
+rng = np.random.default_rng(SEED)
 
 sep = "=" * 60
 
@@ -63,17 +65,21 @@ print(sep)
 # 100×40 bipartite at 20% density  (= vignette bipartite.random.game)
 bp = (rng.random((100, 40)) < 0.20).astype(np.int16)
 e_bp = int(bp.sum())
-print(f"  Bipartite  {bp.shape[0]}×{bp.shape[1]},  {e_bp} edges "
-      f"({e_bp / bp.size:.2%} density)")
+print(
+    f"  Bipartite  {bp.shape[0]}×{bp.shape[1]},  {e_bp} edges "
+    f"({e_bp / bp.size:.2%} density)"
+)
 
 # 200-node undirected Erdős–Rényi at 5% density
 # Vignette uses n=1000, p=0.01; we scale down for speed.
-_full  = (rng.random((200, 200)) < 0.05).astype(np.int16)
+_full = (rng.random((200, 200)) < 0.05).astype(np.int16)
 _upper = np.triu(_full, k=1)
-und    = (_upper + _upper.T).clip(0, 1).astype(np.int16)
-e_und  = int(und.sum()) // 2
-print(f"  Undirected {und.shape[0]} nodes,  {e_und} edges "
-      f"({e_und / (und.shape[0]*(und.shape[0]-1)//2):.2%} density)")
+und = (_upper + _upper.T).clip(0, 1).astype(np.int16)
+e_und = int(und.sum()) // 2
+print(
+    f"  Undirected {und.shape[0]} nodes,  {e_und} edges "
+    f"({e_und / (und.shape[0] * (und.shape[0] - 1) // 2):.2%} density)"
+)
 
 
 # ── 2. Bipartite: compute analytical bound N ─────────────────────────────────
@@ -104,19 +110,19 @@ print("3. Bipartite: Jaccard convergence analysis")
 print(sep)
 
 MAX_ITER_BP = 10 * N_bp
-STEP_BP     = 10   # R default; gives ~N points for a smooth curve
-N_NETWORKS  = 10
+STEP_BP = 10  # R default; gives ~N points for a smooth curve
+N_NETWORKS = 10
 
 print(f"  max_iter={MAX_ITER_BP}  step={STEP_BP}  n_networks={N_NETWORKS}")
 bp_result = pbr.analysis_bipartite(
     bp,
-    step       = STEP_BP,
-    max_iter   = MAX_ITER_BP,
-    n_networks = N_NETWORKS,
-    accuracy   = 0.00005,
-    exact      = False,
-    verbose    = False,
-    seed       = SEED,
+    step=STEP_BP,
+    max_iter=MAX_ITER_BP,
+    n_networks=N_NETWORKS,
+    accuracy=0.00005,
+    exact=False,
+    verbose=False,
+    seed=SEED,
 )
 print(f"  scores shape: {bp_result.scores.shape}  (n_networks × n_steps)")
 
@@ -133,21 +139,21 @@ print(sep)
 print("4. Undirected: Jaccard convergence analysis")
 print(sep)
 
-t_und    = und.shape[0] * (und.shape[0] - 1) // 2
-N_und    = bound_bipartite(e_und, t_und, accuracy=0.00005, exact=False)
+t_und = und.shape[0] * (und.shape[0] - 1) // 2
+N_und = bound_bipartite(e_und, t_und, accuracy=0.00005, exact=False)
 MAX_ITER_UND = 10 * N_und
-STEP_UND     = 10
+STEP_UND = 10
 
 print(f"  N = {N_und}  max_iter={MAX_ITER_UND}  step={STEP_UND}  n_networks=5")
 und_result = pbr.analysis_undirected(
     und,
-    step       = STEP_UND,
-    max_iter   = MAX_ITER_UND,
-    n_networks = 5,
-    accuracy   = 0.00005,
-    exact      = False,
-    verbose    = False,
-    seed       = SEED,
+    step=STEP_UND,
+    max_iter=MAX_ITER_UND,
+    n_networks=5,
+    accuracy=0.00005,
+    exact=False,
+    verbose=False,
+    seed=SEED,
 )
 print(f"  scores shape: {und_result.scores.shape}")
 
@@ -163,15 +169,16 @@ print(f"  scores shape: {und_result.scores.shape}")
 # R uses x=seq(1, length.out=n_steps), so x-axis starts at step (not 0).
 # ---------------------------------------------------------------------------
 
+
 def plot_analysis_panels(result, axes):
     scores = result.scores
-    n_net  = scores.shape[0]
-    xs     = np.arange(1, scores.shape[1] + 1) * result.step
-    mean   = scores.mean(axis=0)
-    se     = scores.std(axis=0, ddof=1) / np.sqrt(n_net)
-    tval   = t_dist.ppf(0.975, df=n_net - 1) if n_net > 1 else 1.96
-    sup    = mean + tval * se
-    inf_   = mean - tval * se
+    n_net = scores.shape[0]
+    xs = np.arange(1, scores.shape[1] + 1) * result.step
+    mean = scores.mean(axis=0)
+    se = scores.std(axis=0, ddof=1) / np.sqrt(n_net)
+    tval = t_dist.ppf(0.975, df=n_net - 1) if n_net > 1 else 1.96
+    sup = mean + tval * se
+    inf_ = mean - tval * se
 
     for ax, logscale in zip(axes, [False, True]):
         ax.fill_between(xs, inf_, sup, color="#CCCCCC", label="C.I.")
@@ -182,12 +189,14 @@ def plot_analysis_panels(result, axes):
         if logscale:
             ax.set_xscale("log")
             ax.set_yscale("log")
-            ax.set_title("Jaccard index (JI) over time (log-log scale)",
-                         fontsize=10, fontweight="bold")
+            ax.set_title(
+                "Jaccard index (JI) over time (log-log scale)",
+                fontsize=10,
+                fontweight="bold",
+            )
             ax.legend(loc="lower left", fontsize=8)
         else:
-            ax.set_title("Jaccard index (JI) over time",
-                         fontsize=10, fontweight="bold")
+            ax.set_title("Jaccard index (JI) over time", fontsize=10, fontweight="bold")
             ax.legend(loc="upper right", fontsize=8)
 
 
@@ -211,22 +220,24 @@ print(sep)
 print("5. Rewiring + Jaccard similarity")
 print(sep)
 
-bp_rewired  = pbr.rewire_bipartite(bp,  verbose=False, seed=SEED)
+bp_rewired = pbr.rewire_bipartite(bp, verbose=False, seed=SEED)
 und_rewired = pbr.rewire_undirected(und, verbose=False, seed=SEED)
 
-j_bp  = jaccard(bp, bp_rewired)
+j_bp = jaccard(bp, bp_rewired)
 j_und = jaccard(und, und_rewired)
 
-print(f"  Bipartite  row sums preserved: "
-      f"{np.array_equal(bp.sum(1), bp_rewired.sum(1))}")
-print(f"  Bipartite  col sums preserved: "
-      f"{np.array_equal(bp.sum(0), bp_rewired.sum(0))}")
+print(
+    f"  Bipartite  row sums preserved: {np.array_equal(bp.sum(1), bp_rewired.sum(1))}"
+)
+print(
+    f"  Bipartite  col sums preserved: {np.array_equal(bp.sum(0), bp_rewired.sum(0))}"
+)
 print(f"  Bipartite  Jaccard(original, rewired) = {j_bp:.4f}")
 print()
-print(f"  Undirected degrees preserved:  "
-      f"{np.array_equal(und.sum(0), und_rewired.sum(0))}")
-print(f"  Undirected symmetric:          "
-      f"{np.array_equal(und_rewired, und_rewired.T)}")
+print(
+    f"  Undirected degrees preserved:  {np.array_equal(und.sum(0), und_rewired.sum(0))}"
+)
+print(f"  Undirected symmetric:          {np.array_equal(und_rewired, und_rewired.T)}")
 print(f"  Undirected Jaccard(original, rewired) = {j_und:.4f}")
 
 
@@ -244,8 +255,8 @@ print("6. Sampler: draw K networks from the null model")
 print(sep)
 
 K_SAMPLES = 5
-sampled   = []
-current   = bp.copy()
+sampled = []
+current = bp.copy()
 for k in range(K_SAMPLES):
     current = pbr.rewire_bipartite(current, verbose=False, seed=SEED + k + 1)
     sampled.append(current.copy())
@@ -255,11 +266,16 @@ col_ok = all(np.array_equal(s.sum(0), bp.sum(0)) for s in sampled)
 print(f"  Generated {K_SAMPLES} null-model networks")
 print(f"  All row sums preserved: {row_ok}")
 print(f"  All col sums preserved: {col_ok}")
-pairwise = [jaccard(sampled[i], sampled[j])
-            for i in range(K_SAMPLES) for j in range(i+1, K_SAMPLES)]
-print(f"  Pairwise Jaccard among samples: "
-      f"mean={np.mean(pairwise):.3f}  min={np.min(pairwise):.3f}  "
-      f"max={np.max(pairwise):.3f}")
+pairwise = [
+    jaccard(sampled[i], sampled[j])
+    for i in range(K_SAMPLES)
+    for j in range(i + 1, K_SAMPLES)
+]
+print(
+    f"  Pairwise Jaccard among samples: "
+    f"mean={np.mean(pairwise):.3f}  min={np.min(pairwise):.3f}  "
+    f"max={np.max(pairwise):.3f}"
+)
 
 
 # ── 8. Monitoring: t-SNE of Markov chain ────────────────────────────────────
@@ -297,19 +313,20 @@ print(sep)
 #   birewire.visual.monitoring.bipartite(ggg, display=T, n.networks=75,
 #       sequence=c(1,10,200,1000,"n",50000), ncol=3, perplexity=10)
 # → 6 panels in a 2×3 grid, bipartite only.
-N_MON  = 75
-PERP   = 10
-SEQ    = [1, 10, 200, 1000, N_bp, 50000]
-LABS   = ["1", "10", "200", "1000", "N", "50000"]
+N_MON = 75
+PERP = 10
+SEQ = [1, 10, 200, 1000, N_bp, 50000]
+LABS = ["1", "10", "200", "1000", "N", "50000"]
 
 
 def collect_chain(start, interval, n_samples, base_seed):
     """Sequential Markov chain walk — matches R's inner loop."""
-    nets    = [start.copy()]
+    nets = [start.copy()]
     current = start.copy()
     for i in range(n_samples - 1):
         current = pbr.rewire_bipartite(
-            current, max_iter=interval, verbose=False, seed=base_seed + i)
+            current, max_iter=interval, verbose=False, seed=base_seed + i
+        )
         nets.append(current.copy())
     return nets
 
@@ -325,21 +342,27 @@ def pairwise_dist(nets):
 
 def embed_tsne(D, perplexity, seed):
     """Rtsne-faithful: normalize → PCA(50) → t-SNE(euclidean)."""
-    D_n   = D / (np.abs(D).max() + 1e-12)
+    D_n = D / (np.abs(D).max() + 1e-12)
     n_pca = min(50, D_n.shape[1] - 1)
     D_pca = PCA(n_components=n_pca, random_state=seed).fit_transform(D_n)
-    return TSNE(n_components=2, metric="euclidean", perplexity=perplexity,
-                random_state=seed, init="random", max_iter=1000
-                ).fit_transform(D_pca)
+    return TSNE(
+        n_components=2,
+        metric="euclidean",
+        perplexity=perplexity,
+        random_state=seed,
+        init="random",
+        max_iter=1000,
+    ).fit_transform(D_pca)
 
 
 def scatter_panel(ax, emb, label, n):
-    cmap   = plt.cm.coolwarm
-    norm   = Normalize(vmin=0, vmax=n - 1)
+    cmap = plt.cm.coolwarm
+    norm = Normalize(vmin=0, vmax=n - 1)
     colors = cmap(norm(np.arange(n)))
     ax.scatter(emb[1:, 0], emb[1:, 1], c=colors[1:], s=10, linewidths=0)
-    ax.scatter(emb[0, 0], emb[0, 1], color=colors[0], s=50,
-               edgecolors="black", linewidths=0.8)
+    ax.scatter(
+        emb[0, 0], emb[0, 1], color=colors[0], s=50, edgecolors="black", linewidths=0.8
+    )
     ax.text(emb[0, 0], emb[0, 1], " start", fontsize=8)
     ax.set_title(f"k= {label}", fontsize=10, fontweight="bold", pad=3)
     ax.set_xlabel("A.U.", fontsize=8)
@@ -354,7 +377,7 @@ embeddings = []
 for k, (iv, lbl) in enumerate(zip(SEQ, LABS)):
     print(f"    k={lbl:<7} … ", end="", flush=True)
     nets = collect_chain(bp, iv, N_MON, base_seed=SEED + k * 10000)
-    D    = pairwise_dist(nets)
+    D = pairwise_dist(nets)
     embeddings.append(embed_tsne(D, PERP, SEED))
     print("done")
 
@@ -362,8 +385,9 @@ for k, (iv, lbl) in enumerate(zip(SEQ, LABS)):
 fig_mon, axes = plt.subplots(2, 3, figsize=(11, 7))
 for ax, emb, lbl in zip(axes.ravel(), embeddings, LABS):
     scatter_panel(ax, emb, lbl, N_MON)
-fig_mon.subplots_adjust(left=0.07, right=0.97, top=0.95, bottom=0.08,
-                        hspace=0.45, wspace=0.35)
+fig_mon.subplots_adjust(
+    left=0.07, right=0.97, top=0.95, bottom=0.08, hspace=0.45, wspace=0.35
+)
 fig_mon.savefig(OUT / "demo_monitoring.png", dpi=150, bbox_inches="tight")
 print(f"\n  → {OUT / 'demo_monitoring.png'}")
 

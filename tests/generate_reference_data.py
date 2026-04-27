@@ -30,7 +30,7 @@ np.save(OUTDIR / "bipartite_input.npy", bip_input)
 
 # ---- rewired bipartite --------------------------------------------------
 
-from pybirewirex.bipartite import rewire_bipartite, analysis_bipartite  # noqa: E402
+from pybirewirex.bipartite import analysis_bipartite, rewire_bipartite  # noqa: E402
 
 bip_rewired = rewire_bipartite(bip_input, max_iter=500, verbose=False, seed=SEED)
 np.save(OUTDIR / "bipartite_rewired.npy", bip_rewired)
@@ -59,7 +59,7 @@ np.save(OUTDIR / "undirected_input.npy", und_input)
 
 # ---- rewired undirected -------------------------------------------------
 
-from pybirewirex.undirected import rewire_undirected, analysis_undirected  # noqa: E402
+from pybirewirex.undirected import analysis_undirected, rewire_undirected  # noqa: E402
 
 und_rewired = rewire_undirected(und_input, max_iter=500, verbose=False, seed=SEED)
 np.save(OUTDIR / "undirected_rewired.npy", und_rewired)

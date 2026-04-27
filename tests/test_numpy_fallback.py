@@ -6,11 +6,10 @@ import numpy as np
 import pytest
 
 import pybirewirex.bipartite as _bp_mod
-import pybirewirex.undirected as _ud_mod
 import pybirewirex.sparse as _sp_mod
+import pybirewirex.undirected as _ud_mod
 from pybirewirex.bipartite import AnalysisResult, analysis_bipartite, rewire_bipartite
 from pybirewirex.undirected import analysis_undirected, rewire_undirected
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -28,8 +27,13 @@ def bip() -> np.ndarray:
 @pytest.fixture
 def adj() -> np.ndarray:
     return np.array(
-        [[0, 1, 1, 0, 0], [1, 0, 0, 1, 1], [1, 0, 0, 1, 0],
-         [0, 1, 1, 0, 1], [0, 1, 0, 1, 0]],
+        [
+            [0, 1, 1, 0, 0],
+            [1, 0, 0, 1, 1],
+            [1, 0, 0, 1, 0],
+            [0, 1, 1, 0, 1],
+            [0, 1, 0, 1, 0],
+        ],
         dtype=np.int16,
     )
 
@@ -70,22 +74,30 @@ def test_fallback_rewire_bipartite_deterministic(no_c, bip):
 
 
 def test_fallback_analysis_bipartite_returns_result(no_c, bip):
-    result = analysis_bipartite(bip, step=5, n_networks=3, max_iter=20, seed=0, verbose=False)
+    result = analysis_bipartite(
+        bip, step=5, n_networks=3, max_iter=20, seed=0, verbose=False
+    )
     assert isinstance(result, AnalysisResult)
 
 
 def test_fallback_analysis_bipartite_scores_shape(no_c, bip):
-    result = analysis_bipartite(bip, step=5, n_networks=4, max_iter=20, seed=0, verbose=False)
+    result = analysis_bipartite(
+        bip, step=5, n_networks=4, max_iter=20, seed=0, verbose=False
+    )
     assert result.scores.shape == (4, 5)
 
 
 def test_fallback_analysis_bipartite_first_score_is_one(no_c, bip):
-    result = analysis_bipartite(bip, step=5, n_networks=3, max_iter=20, seed=0, verbose=False)
+    result = analysis_bipartite(
+        bip, step=5, n_networks=3, max_iter=20, seed=0, verbose=False
+    )
     np.testing.assert_array_equal(result.scores[:, 0], 1.0)
 
 
 def test_fallback_analysis_bipartite_scores_in_unit_interval(no_c, bip):
-    result = analysis_bipartite(bip, step=5, n_networks=3, max_iter=20, seed=0, verbose=False)
+    result = analysis_bipartite(
+        bip, step=5, n_networks=3, max_iter=20, seed=0, verbose=False
+    )
     assert np.all(result.scores >= 0.0)
     assert np.all(result.scores <= 1.0)
 
@@ -97,9 +109,7 @@ def test_fallback_analysis_bipartite_scores_in_unit_interval(no_c, bip):
 
 def test_fallback_rewire_undirected_degree_sequence(no_c, adj):
     result = rewire_undirected(adj, seed=42, verbose=False)
-    np.testing.assert_array_equal(
-        np.sort(result.sum(axis=1)), np.sort(adj.sum(axis=1))
-    )
+    np.testing.assert_array_equal(np.sort(result.sum(axis=1)), np.sort(adj.sum(axis=1)))
 
 
 def test_fallback_rewire_undirected_symmetric(no_c, adj):
@@ -119,17 +129,23 @@ def test_fallback_rewire_undirected_deterministic(no_c, adj):
 
 
 def test_fallback_analysis_undirected_first_score_is_one(no_c, adj):
-    result = analysis_undirected(adj, step=5, n_networks=3, max_iter=20, seed=0, verbose=False)
+    result = analysis_undirected(
+        adj, step=5, n_networks=3, max_iter=20, seed=0, verbose=False
+    )
     np.testing.assert_array_equal(result.scores[:, 0], 1.0)
 
 
 def test_fallback_analysis_undirected_returns_result(no_c, adj):
-    result = analysis_undirected(adj, step=5, n_networks=2, max_iter=20, seed=0, verbose=False)
+    result = analysis_undirected(
+        adj, step=5, n_networks=2, max_iter=20, seed=0, verbose=False
+    )
     assert isinstance(result, AnalysisResult)
 
 
 def test_fallback_analysis_undirected_scores_in_unit_interval(no_c, adj):
-    result = analysis_undirected(adj, step=5, n_networks=3, max_iter=20, seed=0, verbose=False)
+    result = analysis_undirected(
+        adj, step=5, n_networks=3, max_iter=20, seed=0, verbose=False
+    )
     assert np.all(result.scores >= 0.0)
     assert np.all(result.scores <= 1.0)
 

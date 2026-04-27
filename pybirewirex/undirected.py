@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Union
+from typing import Any
 
 import numpy as np
 
@@ -12,7 +12,7 @@ from pybirewirex.bipartite import AnalysisResult, _make_seed, _n_steps
 
 
 def _resolve_max_iter(
-    max_iter: Union[int, str], e: int, t: int, accuracy: float, exact: bool
+    max_iter: int | str, e: int, t: int, accuracy: float, exact: bool
 ) -> int:
     if max_iter == "n":
         return bound_undirected(e, t, accuracy, exact)
@@ -20,8 +20,8 @@ def _resolve_max_iter(
 
 
 def rewire_undirected(
-    adjacency: Union[np.ndarray, Any],
-    max_iter: Union[int, str] = "n",
+    adjacency: np.ndarray | Any,
+    max_iter: int | str = "n",
     accuracy: float = 1e-5,
     exact: bool = False,
     verbose: bool = True,
@@ -42,7 +42,10 @@ def rewire_undirected(
         Rewired network in the same type as *adjacency*.
     """
     if not isinstance(adjacency, np.ndarray):
-        from pybirewirex.sparse import is_sparse_or_graph, rewire_undirected_sparse  # noqa: PLC0415
+        from pybirewirex.sparse import (  # noqa: PLC0415
+            is_sparse_or_graph,
+            rewire_undirected_sparse,
+        )
 
         if is_sparse_or_graph(adjacency):
             return rewire_undirected_sparse(
@@ -84,7 +87,7 @@ def rewire_undirected(
 def analysis_undirected(
     adjacency: np.ndarray,
     step: int = 10,
-    max_iter: Union[int, str] = "n",
+    max_iter: int | str = "n",
     n_networks: int = 50,
     accuracy: float = 1e-5,
     exact: bool = False,
@@ -119,7 +122,7 @@ def analysis_undirected(
     # N_bound is always the analytical bound, stored in the result for plotting.
     # n_run is what we actually iterate — may be larger when max_iter is explicit.
     N_bound = bound_undirected(e, t, accuracy, exact)
-    n_run   = _resolve_max_iter(max_iter, e, t, accuracy, exact)
+    n_run = _resolve_max_iter(max_iter, e, t, accuracy, exact)
     ns = _n_steps(n_run, step)
     base_seed = _make_seed(seed)
 
@@ -129,7 +132,9 @@ def analysis_undirected(
         all_scores = np.zeros((n_networks, ns), dtype=np.float64)
         for i in range(n_networks):
             net_seed = (base_seed + i) & 0xFFFFFFFFFFFFFFFF
-            scores_1d, n_written = _fb.analysis_undirected(m, n_run, ns, step, net_seed, verbose)
+            scores_1d, n_written = _fb.analysis_undirected(
+                m, n_run, ns, step, net_seed, verbose
+            )
             all_scores[i, :n_written] = scores_1d[:n_written]
         return AnalysisResult(N=N_bound, scores=all_scores, step=step)
 

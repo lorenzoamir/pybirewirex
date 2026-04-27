@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     pass
@@ -23,7 +23,7 @@ class AnalysisResult:
 
 
 def _resolve_max_iter(
-    max_iter: Union[int, str], e: int, t: int, accuracy: float, exact: bool
+    max_iter: int | str, e: int, t: int, accuracy: float, exact: bool
 ) -> int:
     if max_iter == "n":
         return bound_bipartite(e, t, accuracy, exact)
@@ -46,13 +46,13 @@ def _n_steps(N: int, step: int) -> int:
 
 
 def rewire_bipartite(
-    matrix: Union[np.ndarray, "Any"],
-    max_iter: Union[int, str] = "n",
+    matrix: np.ndarray | Any,
+    max_iter: int | str = "n",
     accuracy: float = 1e-5,
     exact: bool = False,
     verbose: bool = True,
     seed: int | None = None,
-) -> "Any":
+) -> Any:
     """Rewire a bipartite network preserving row and column sums.
 
     Args:
@@ -68,7 +68,10 @@ def rewire_bipartite(
         Rewired network in the same type as *matrix*.
     """
     if not isinstance(matrix, np.ndarray):
-        from pybirewirex.sparse import is_sparse_or_graph, rewire_bipartite_sparse  # noqa: PLC0415
+        from pybirewirex.sparse import (  # noqa: PLC0415
+            is_sparse_or_graph,
+            rewire_bipartite_sparse,
+        )
 
         if is_sparse_or_graph(matrix):
             return rewire_bipartite_sparse(
@@ -112,7 +115,7 @@ def rewire_bipartite(
 def analysis_bipartite(
     matrix: np.ndarray,
     step: int = 10,
-    max_iter: Union[int, str] = "n",
+    max_iter: int | str = "n",
     n_networks: int = 50,
     accuracy: float = 1e-5,
     exact: bool = False,
@@ -147,7 +150,7 @@ def analysis_bipartite(
     # N_bound is always the analytical bound, stored in the result for plotting.
     # n_run is what we actually iterate — may be larger when max_iter is explicit.
     N_bound = bound_bipartite(e, t, accuracy, exact)
-    n_run   = _resolve_max_iter(max_iter, e, t, accuracy, exact)
+    n_run = _resolve_max_iter(max_iter, e, t, accuracy, exact)
     ns = _n_steps(n_run, step)
     base_seed = _make_seed(seed)
 
@@ -157,7 +160,9 @@ def analysis_bipartite(
         all_scores = np.zeros((n_networks, ns), dtype=np.float64)
         for i in range(n_networks):
             net_seed = (base_seed + i) & 0xFFFFFFFFFFFFFFFF
-            scores_1d, n_written = _fb.analysis_bipartite(m, n_run, ns, step, net_seed, verbose)
+            scores_1d, n_written = _fb.analysis_bipartite(
+                m, n_run, ns, step, net_seed, verbose
+            )
             all_scores[i, :n_written] = scores_1d[:n_written]
         return AnalysisResult(N=N_bound, scores=all_scores, step=step)
 

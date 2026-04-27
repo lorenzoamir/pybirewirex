@@ -5,23 +5,45 @@ on:
   pull_request:
 
 jobs:
+  # Auto-fix formatting and fixable lint issues, then commit back.
+  # Unfixable lint errors still fail the job so they don't silently land.
   lint:
-    name: Lint & format check
+    name: Lint & format
     runs-on: ubuntu-latest
+    # Skip if the commit was already made by this job to avoid infinite loops
+    if: github.actor != 'github-actions[bot]'
+
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: astral-sh/setup-uv@v5
 
-      - name: Ruff lint
-        run: uv run --with ruff ruff check .
+      - name: Fix imports and auto-fixable lint issues
+        run: uv run --with ruff ruff check --fix .
 
-      - name: Ruff format check
-        run: uv run --with ruff ruff format --check .
+      - name: Format code
+        run: uv run --with ruff ruff format .
+
+      - name: Commit and push if anything changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet; then
+            git add -A
+            git commit -m "style: auto-fix with ruff"
+            git push
+          fi
+
+      # After auto-fixing, catch anything ruff couldn't fix automatically
+      - name: Check for remaining lint errors
+        run: uv run --with ruff ruff check .
 
   test:
     name: Tests (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
+    needs: lint
     strategy:
       fail-fast: false
       matrix:
@@ -29,6 +51,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Check out the latest commit, which may include the auto-fix commit
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - uses: actions/setup-python@v5
         with:

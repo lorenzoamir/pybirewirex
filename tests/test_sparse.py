@@ -1,4 +1,5 @@
 """Tests for sparse and graph input dispatch (issue #6)."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -6,7 +7,6 @@ import pytest
 import scipy.sparse as sp
 
 from pybirewirex import rewire_bipartite, rewire_undirected
-
 
 # ---- Fixtures ----
 
@@ -39,10 +39,7 @@ def bip_igraph(bip_matrix):
     # vertices nrow..nrow+ncol-1 are col partition (type=True).
     types = [False] * nrow + [True] * ncol
     edges = [
-        (i, nrow + j)
-        for i in range(nrow)
-        for j in range(ncol)
-        if bip_matrix[i, j] == 1
+        (i, nrow + j) for i in range(nrow) for j in range(ncol) if bip_matrix[i, j] == 1
     ]
     G = igraph.Graph(n=n, edges=edges, directed=False)
     G.vs["type"] = types
@@ -87,12 +84,7 @@ def und_sparse(und_matrix):
 def und_igraph(und_matrix):
     igraph = pytest.importorskip("igraph")
     n = und_matrix.shape[0]
-    edges = [
-        (i, j)
-        for i in range(n)
-        for j in range(i + 1, n)
-        if und_matrix[i, j] == 1
-    ]
+    edges = [(i, j) for i in range(n) for j in range(i + 1, n) if und_matrix[i, j] == 1]
     return igraph.Graph(n=n, edges=edges, directed=False)
 
 
@@ -180,12 +172,8 @@ def test_bip_nx_degree_preserved(bip_nx):
 def test_bip_nx_bipartite_attribute_preserved(bip_nx):
     pytest.importorskip("networkx")
     result = rewire_bipartite(bip_nx, verbose=False, seed=1)
-    orig_parts = {
-        n: d["bipartite"] for n, d in bip_nx.nodes(data=True)
-    }
-    new_parts = {
-        n: d["bipartite"] for n, d in result.nodes(data=True)
-    }
+    orig_parts = {n: d["bipartite"] for n, d in bip_nx.nodes(data=True)}
+    new_parts = {n: d["bipartite"] for n, d in result.nodes(data=True)}
     assert orig_parts == new_parts
 
 
