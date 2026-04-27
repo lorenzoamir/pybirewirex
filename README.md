@@ -96,7 +96,7 @@ The red line marks the analytical bound N.
 
 **Original (R):**
 
-![R analysis figure](.github/images/r_analysis.pdf)
+![R analysis figure](.github/images/r_analysis.png)
 
 **Python reproduction:**
 
@@ -111,7 +111,7 @@ red = last). At small step counts the chain moves slowly (tight clusters); at
 
 **Original (R):**
 
-![R monitoring figure](.github/images/r_monitoring.pdf)
+![R monitoring figure](.github/images/r_monitoring.png)
 
 **Python reproduction:**
 
