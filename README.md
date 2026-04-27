@@ -1,9 +1,9 @@
 # PyBiRewireX
 
-[![PyPI](https://img.shields.io/pypi/v/pybirewirexx)](https://pypi.org/project/pybirewirexx/)
-[![Python](https://img.shields.io/pypi/pyversions/pybirewirexx)](https://pypi.org/project/pybirewirexx/)
+[![PyPI](https://img.shields.io/pypi/v/pybirewirex)](https://pypi.org/project/pybirewirex/)
+[![Python](https://img.shields.io/pypi/pyversions/pybirewirex)](https://pypi.org/project/pybirewirex/)
 [![Tests](https://github.com/lorenzoamir/PyBiRewireX/actions/workflows/ci.yml/badge.svg)](https://github.com/lorenzoamir/PyBiRewireX/actions/workflows/ci.yml)
-[![Docs](https://readthedocs.org/projects/pybirewirexx/badge/?version=latest)](https://pybirewirexx.readthedocs.io/en/latest/)
+[![Docs](https://readthedocs.org/projects/pybirewirex/badge/?version=latest)](https://pybirewirex.readthedocs.io/en/latest/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 Python port of the [BiRewire R package](https://bioconductor.org/packages/BiRewire/) —
@@ -20,13 +20,13 @@ properties are trivially explained by degree alone.
 ## Installation
 
 ```bash
-pip install pybirewirexx
+pip install pybirewirex
 ```
 
 With optional graph-object support (igraph / networkx):
 
 ```bash
-pip install "pybirewirexx[graph]"
+pip install "pybirewirex[graph]"
 ```
 
 **Requirements:** Python ≥ 3.10, a C compiler (for building the extension).
@@ -39,7 +39,7 @@ and Windows x86_64.
 
 ```python
 import numpy as np
-import pybirewirexx as pbr
+import pybirewirex as pbr
 
 # Any binary 2-D ndarray (bipartite incidence matrix)
 matrix = (np.random.default_rng(0).random((100, 40)) < 0.2).astype(np.int16)
@@ -139,7 +139,7 @@ All rewiring functions share the same keyword arguments:
 | `verbose` | `bool` | `True` | Print progress to stderr |
 | `seed` | `int \| None` | `None` | RNG seed (None = random) |
 
-Full API docs at **[pybirewirexx.readthedocs.io](https://pybirewirexx.readthedocs.io)**. WORK IN PROGRES!!!
+Full API docs at **[pybirewirex.readthedocs.io](https://pybirewirex.readthedocs.io)**. WORK IN PROGRES!!!
 
 ---
 
