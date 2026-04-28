@@ -7,30 +7,31 @@ on:
 
 jobs:
   build-wheels:
-    name: Build wheels (${{ matrix.artifact }})
-    runs-on: ${{ matrix.os }}
+    name: Build wheels (${{ matrix.python }}-${{ matrix.platform.name }})
+    runs-on: ${{ matrix.platform.os }}
     permissions:
       contents: read
     strategy:
       matrix:
-        include:
-          - os: ubuntu-latest
-            artifact: linux-manylinux-x86_64
+        python: [cp310, cp311, cp312, cp313]
+        platform:
+          - name: linux-manylinux-x86_64
+            os: ubuntu-latest
             cibw_skip: "*-musllinux* *-win32 *-manylinux_i686 pp*"
-          - os: ubuntu-latest
-            artifact: linux-musllinux-x86_64
+          - name: linux-musllinux-x86_64
+            os: ubuntu-latest
             cibw_skip: "*-manylinux* *-win32 pp*"
-          - os: ubuntu-24.04-arm
-            artifact: linux-manylinux-aarch64
+          - name: linux-manylinux-aarch64
+            os: ubuntu-24.04-arm
             cibw_skip: "*-musllinux* pp*"
-          - os: ubuntu-24.04-arm
-            artifact: linux-musllinux-aarch64
+          - name: linux-musllinux-aarch64
+            os: ubuntu-24.04-arm
             cibw_skip: "*-manylinux* pp*"
-          - os: macos-latest
-            artifact: macos
+          - name: macos
+            os: macos-latest
             cibw_skip: "pp*"
-          - os: windows-latest
-            artifact: windows
+          - name: windows
+            os: windows-latest
             cibw_skip: "*-win32 pp*"
 
     steps:
@@ -38,11 +39,12 @@ jobs:
 
       - uses: pypa/cibuildwheel@v2.23.0
         env:
-          CIBW_SKIP: ${{ matrix.cibw_skip }}
+          CIBW_BUILD: "${{ matrix.python }}-*"
+          CIBW_SKIP: ${{ matrix.platform.cibw_skip }}
 
       - uses: actions/upload-artifact@v4
         with:
-          name: dist-${{ matrix.artifact }}
+          name: dist-${{ matrix.python }}-${{ matrix.platform.name }}
           path: wheelhouse/*.whl
 
   build-sdist:
