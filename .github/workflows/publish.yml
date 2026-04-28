@@ -7,22 +7,42 @@ on:
 
 jobs:
   build-wheels:
-    name: Build wheels (${{ matrix.os }})
+    name: Build wheels (${{ matrix.artifact }})
     runs-on: ${{ matrix.os }}
     permissions:
       contents: read
     strategy:
       matrix:
-        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            artifact: linux-manylinux-x86_64
+            cibw_skip: "*-musllinux* *-win32 *-manylinux_i686 pp*"
+          - os: ubuntu-latest
+            artifact: linux-musllinux-x86_64
+            cibw_skip: "*-manylinux* *-win32 pp*"
+          - os: ubuntu-24.04-arm
+            artifact: linux-manylinux-aarch64
+            cibw_skip: "*-musllinux* pp*"
+          - os: ubuntu-24.04-arm
+            artifact: linux-musllinux-aarch64
+            cibw_skip: "*-manylinux* pp*"
+          - os: macos-latest
+            artifact: macos
+            cibw_skip: "pp*"
+          - os: windows-latest
+            artifact: windows
+            cibw_skip: "*-win32 pp*"
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: pypa/cibuildwheel@v2.23.0
+        env:
+          CIBW_SKIP: ${{ matrix.cibw_skip }}
 
       - uses: actions/upload-artifact@v4
         with:
-          name: dist-${{ matrix.os }}
+          name: dist-${{ matrix.artifact }}
           path: wheelhouse/*.whl
 
   build-sdist:
