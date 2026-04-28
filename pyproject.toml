@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=64", "setuptools-scm>=8", "cffi>=1.0", "numpy"]
+requires = ["setuptools>=64", "cffi>=1.0", "numpy"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pybirewirex"
-dynamic = ["version"]
+version = "0.1.8"
 description = "Fast degree-preserving network rewiring — Python port of the BiRewire R package"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -85,8 +85,6 @@ ignore = ["E501"]
 [tool.mypy]
 python_version = "3.10"
 ignore_missing_imports = true
-
-[tool.setuptools_scm]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
