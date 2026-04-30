@@ -37,6 +37,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: astral-sh/setup-uv@v5
+
       - uses: pypa/cibuildwheel@v2.23.0
         env:
           CIBW_BUILD: "${{ matrix.python }}-*"
