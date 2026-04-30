@@ -50,7 +50,7 @@ def rewire_bipartite(
     max_iter: int | str = "n",
     accuracy: float = 1e-5,
     exact: bool = False,
-    verbose: bool = True,
+    verbose: bool = False,
     seed: int | None = None,
 ) -> Any:
     """Rewire a bipartite network preserving row and column sums.
@@ -119,7 +119,7 @@ def analysis_bipartite(
     n_networks: int = 50,
     accuracy: float = 1e-5,
     exact: bool = False,
-    verbose: bool = True,
+    verbose: bool = False,
     seed: int | None = None,
 ) -> AnalysisResult:
     """Run convergence analysis for dense bipartite rewiring.

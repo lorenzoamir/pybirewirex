@@ -293,7 +293,7 @@ def rewire_bipartite_sparse(
     max_iter: int | str = "n",
     accuracy: float = 1e-5,
     exact: bool = False,
-    verbose: bool = True,
+    verbose: bool = False,
     seed: int | None = None,
 ) -> Any:
     """Rewire a bipartite sparse/graph input preserving row and column sums."""
@@ -327,7 +327,7 @@ def rewire_undirected_sparse(
     max_iter: int | str = "n",
     accuracy: float = 1e-5,
     exact: bool = False,
-    verbose: bool = True,
+    verbose: bool = False,
     seed: int | None = None,
 ) -> Any:
     """Rewire an undirected sparse/graph input preserving degree sequence."""

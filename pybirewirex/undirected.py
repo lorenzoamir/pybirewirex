@@ -24,7 +24,7 @@ def rewire_undirected(
     max_iter: int | str = "n",
     accuracy: float = 1e-5,
     exact: bool = False,
-    verbose: bool = True,
+    verbose: bool = False,
     seed: int | None = None,
 ) -> Any:
     """Rewire an undirected network preserving degree sequence.
@@ -91,7 +91,7 @@ def analysis_undirected(
     n_networks: int = 50,
     accuracy: float = 1e-5,
     exact: bool = False,
-    verbose: bool = True,
+    verbose: bool = False,
     seed: int | None = None,
 ) -> AnalysisResult:
     """Run convergence analysis for dense undirected rewiring.
