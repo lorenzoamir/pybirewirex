@@ -38,9 +38,18 @@ def _is_networkx(x: Any) -> bool:
         return False
 
 
+def _is_dataframe(x: Any) -> bool:
+    try:
+        import pandas as pd  # noqa: PLC0415
+
+        return isinstance(x, pd.DataFrame)
+    except ImportError:
+        return False
+
+
 def is_sparse_or_graph(x: Any) -> bool:
-    """Return True if x is a scipy sparse matrix, igraph Graph, or networkx Graph."""
-    return _is_scipy_sparse(x) or _is_igraph(x) or _is_networkx(x)
+    """Return True if x is a scipy sparse matrix, igraph Graph, networkx Graph, or pandas DataFrame."""
+    return _is_scipy_sparse(x) or _is_igraph(x) or _is_networkx(x) or _is_dataframe(x)
 
 
 # ---- Bipartite COO extraction ----
@@ -132,6 +141,25 @@ def _bipartite_to_coo(
             },
         )
 
+    if _is_dataframe(graph):
+        arr = graph.values
+        row_idx, col_idx = np.nonzero(arr)
+        row = np.ascontiguousarray(row_idx.astype(np.uint64))
+        col = np.ascontiguousarray(col_idx.astype(np.uint64))
+        nrow, ncol = arr.shape
+        order = np.argsort(row, kind="stable")
+        return (
+            np.ascontiguousarray(row[order]),
+            np.ascontiguousarray(col[order]),
+            nrow,
+            ncol,
+            {
+                "input_type": "dataframe",
+                "index": list(graph.index),
+                "columns": list(graph.columns),
+            },
+        )
+
     raise TypeError(f"Unsupported graph type: {type(graph)!r}")
 
 
@@ -174,6 +202,14 @@ def _bipartite_from_coo(from_arr: np.ndarray, to_arr: np.ndarray, meta: dict) ->
             type_arr[v] = True
         G.vs["type"] = type_arr
         return G
+
+    if meta["input_type"] == "dataframe":
+        import pandas as pd  # noqa: PLC0415
+
+        idx, cols = meta["index"], meta["columns"]
+        arr = np.zeros((len(idx), len(cols)), dtype=np.int16)
+        arr[from_arr.astype(np.intp), to_arr.astype(np.intp)] = 1
+        return pd.DataFrame(arr, index=idx, columns=cols)
 
     raise ValueError(f"Unknown input type: {meta['input_type']!r}")
 
@@ -248,6 +284,23 @@ def _undirected_to_coo(
             {"input_type": "igraph", "n": n, "directed": graph.is_directed()},
         )
 
+    if _is_dataframe(graph):
+        arr = graph.values
+        n = arr.shape[0]
+        ri, ci = np.nonzero(np.triu(arr, k=1))
+        row = np.ascontiguousarray(ri.astype(np.uint64))
+        col = np.ascontiguousarray(ci.astype(np.uint64))
+        deg = np.ascontiguousarray(
+            (np.array(arr, dtype=np.int64) != 0).sum(axis=1).astype(np.uint64)
+        )
+        return (
+            row,
+            col,
+            n,
+            deg,
+            {"input_type": "dataframe", "index": list(graph.index)},
+        )
+
     raise TypeError(f"Unsupported graph type: {type(graph)!r}")
 
 
@@ -281,6 +334,18 @@ def _undirected_from_coo(
         n_nodes = meta["n"]
         edges = list(zip(from_arr.tolist(), to_arr.tolist()))
         return igraph.Graph(n=n_nodes, edges=edges, directed=meta["directed"])
+
+    if meta["input_type"] == "dataframe":
+        import pandas as pd  # noqa: PLC0415
+
+        idx = meta["index"]
+        n_nodes = len(idx)
+        arr = np.zeros((n_nodes, n_nodes), dtype=np.int16)
+        r = from_arr.astype(np.intp)
+        c = to_arr.astype(np.intp)
+        arr[r, c] = 1
+        arr[c, r] = 1
+        return pd.DataFrame(arr, index=idx, columns=idx)
 
     raise ValueError(f"Unknown input type: {meta['input_type']!r}")
 

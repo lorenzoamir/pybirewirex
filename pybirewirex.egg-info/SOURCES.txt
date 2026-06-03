@@ -5,6 +5,8 @@ build_cffi.py
 pyproject.toml
 setup.py
 c_src/birewire_core.c
+c_src/birewire_core.h
+c_src/birewire_core.o
 pybirewirex/__init__.py
 pybirewirex/_bounds.py
 pybirewirex/_core.py
