@@ -38,9 +38,13 @@ class TestBoundBipartite:
         b2 = bound_bipartite(10.0, 20.0, 1e-5, exact=False)
         assert b1 < b2
 
-    def test_sparse_graph(self):
-        # Very sparse: e=1, t=100 → ratio=0.01
-        result = bound_bipartite(1.0, 100.0, 1e-5, exact=False)
+    def test_single_edge_returns_zero(self):
+        # e=1: impossible to rewire (need ≥2 edges), bound must be 0
+        assert bound_bipartite(1.0, 100.0, 1e-5, exact=False) == 0
+
+    def test_sparse_graph_two_edges(self):
+        # e=2, t=100 → ratio=0.02, bound must be positive
+        result = bound_bipartite(2.0, 100.0, 1e-5, exact=False)
         assert result > 0
 
 

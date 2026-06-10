@@ -87,6 +87,9 @@ def rewire_bipartite(
     m = np.asarray(matrix, dtype=np.int16)
     nrow, ncol = m.shape
     e = int(np.sum(m == 1))
+    if e < 2:
+        out_dtype = np.asarray(matrix).dtype
+        return m.astype(out_dtype) if m.dtype != out_dtype else m.copy()
     t = nrow * ncol
 
     N = _resolve_max_iter(max_iter, e, t, accuracy, exact)
@@ -145,6 +148,9 @@ def analysis_bipartite(
     m = np.asarray(matrix, dtype=np.int16)
     nrow, ncol = m.shape
     e = int(np.sum(m == 1))
+    if e < 2:
+        scores = np.ones((n_networks, 1), dtype=np.float64)
+        return AnalysisResult(N=0, scores=scores, step=step)
     t = nrow * ncol
 
     # N_bound is always the analytical bound, stored in the result for plotting.

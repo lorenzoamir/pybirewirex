@@ -364,6 +364,8 @@ def rewire_bipartite_sparse(
     """Rewire a bipartite sparse/graph input preserving row and column sums."""
     from_arr, to_arr, nrow, ncol, meta = _bipartite_to_coo(graph)
     e = len(from_arr)
+    if e < 2:
+        return _bipartite_from_coo(from_arr, to_arr, meta)
     t = nrow * ncol
 
     N = bound_bipartite(e, t, accuracy, exact) if max_iter == "n" else int(max_iter)
@@ -398,6 +400,8 @@ def rewire_undirected_sparse(
     """Rewire an undirected sparse/graph input preserving degree sequence."""
     from_arr, to_arr, n, deg, meta = _undirected_to_coo(graph)
     e = len(from_arr)
+    if e < 2:
+        return _undirected_from_coo(from_arr, to_arr, n, meta)
     t = n * (n - 1) // 2
 
     N = bound_undirected(e, t, accuracy, exact) if max_iter == "n" else int(max_iter)

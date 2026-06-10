@@ -62,6 +62,9 @@ def rewire_undirected(
     n = m.shape[0]
     # edges = upper triangle sum
     e = int(np.sum(np.triu(m, k=1)))
+    if e < 2:
+        out_dtype = np.asarray(adjacency).dtype
+        return m.astype(out_dtype) if m.dtype != out_dtype else m.copy()
     t = n * (n - 1) // 2
 
     N = _resolve_max_iter(max_iter, e, t, accuracy, exact)
@@ -117,6 +120,9 @@ def analysis_undirected(
     m = np.asarray(adjacency, dtype=np.int16)
     n = m.shape[0]
     e = int(np.sum(np.triu(m, k=1)))
+    if e < 2:
+        scores = np.ones((n_networks, 1), dtype=np.float64)
+        return AnalysisResult(N=0, scores=scores, step=step)
     t = n * (n - 1) // 2
 
     # N_bound is always the analytical bound, stored in the result for plotting.

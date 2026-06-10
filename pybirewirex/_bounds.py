@@ -10,6 +10,8 @@ def bound_bipartite(e: float, t: float, accuracy: float, exact: bool) -> int:
         accuracy: convergence threshold
         exact: if True use exact formula, otherwise approximation
     """
+    if e < 2 or t == 0:
+        return 0
     ratio = e / t
     one_minus = 1.0 - ratio
     log_term = math.log(one_minus / accuracy)
@@ -28,6 +30,8 @@ def bound_undirected(e: float, t: float, accuracy: float, exact: bool) -> int:
         accuracy: convergence threshold
         exact: if True use exact formula, otherwise density-dependent cubic
     """
+    if e < 2 or t == 0:
+        return 0
     ratio = e / t
     one_minus = 1.0 - ratio
     if exact:

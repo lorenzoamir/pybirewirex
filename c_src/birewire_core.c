@@ -58,6 +58,7 @@ static void load_bar(size_t x, size_t n) {
 
 static double jaccard_bipartite(short **a, short **b,
                                 size_t nrow, size_t ncol, size_t e) {
+    if (e == 0) return 1.0;
     size_t num = 0;
     for (size_t i = 0; i < nrow; i++)
         for (size_t j = 0; j < ncol; j++)
@@ -67,6 +68,7 @@ static double jaccard_bipartite(short **a, short **b,
 
 static double jaccard_undirected(short **a, short **b,
                                  size_t nrow, size_t ncol, size_t e) {
+    if (e == 0) return 1.0;
     (void)ncol;
     size_t num = 0;
     for (size_t i = 0; i < nrow; i++)
@@ -179,6 +181,12 @@ int bw_rewire_bipartite(int16_t *flat, size_t ncol, size_t nrow,
         for (size_t j = 0; j < ncol; j++)
             if (matrix[i][j] == 1) e++;
 
+    if (e < 2) {
+        matrix_to_flat(matrix, flat, nrow, ncol);
+        free_matrix(matrix, nrow);
+        return 0;
+    }
+
     size_t *from = malloc(e * sizeof(size_t));
     size_t *to   = malloc(e * sizeof(size_t));
     if (!from || !to) {
@@ -246,6 +254,12 @@ int bw_analysis_bipartite(int16_t *flat, size_t ncol, size_t nrow,
         for (size_t j = 0; j < ncol; j++)
             if (orig[i][j] == 1) e++;
 
+    scores[0] = 1.0;
+    if (e < 2) {
+        free_matrix(working, nrow); free_matrix(orig, nrow);
+        return 1;
+    }
+
     size_t *from = malloc(e * sizeof(size_t));
     size_t *to   = malloc(e * sizeof(size_t));
     if (!from || !to) {
@@ -259,7 +273,6 @@ int bw_analysis_bipartite(int16_t *flat, size_t ncol, size_t nrow,
         for (size_t j = 0; j < ncol; j++)
             if (working[i][j] == 1) { from[kk] = i; to[kk] = j; kk++; }
 
-    scores[0] = 1.0;
     size_t index = 1;
     uint64_t state = make_seed(seed);
     int ret = 0;
@@ -318,6 +331,12 @@ int bw_rewire_undirected(int16_t *flat, size_t ncol, size_t nrow,
         for (size_t j = 0; j < ncol; j++)
             if (m[i][j] == 1) e++;
     e /= 2;
+
+    if (e < 2) {
+        matrix_to_flat(m, flat, nrow, ncol);
+        free_matrix(m, nrow);
+        return 0;
+    }
 
     size_t *from = malloc(e * sizeof(size_t));
     size_t *to   = malloc(e * sizeof(size_t));
@@ -411,6 +430,12 @@ int bw_analysis_undirected(int16_t *flat, size_t ncol, size_t nrow,
             if (orig[i][j] == 1) e++;
     e /= 2;
 
+    scores[0] = 1.0;
+    if (e < 2) {
+        free_matrix(working, nrow); free_matrix(orig, nrow);
+        return 1;
+    }
+
     size_t *from = malloc(e * sizeof(size_t));
     size_t *to   = malloc(e * sizeof(size_t));
     if (!from || !to) {
@@ -424,7 +449,6 @@ int bw_analysis_undirected(int16_t *flat, size_t ncol, size_t nrow,
         for (size_t j = 0; j < i; j++)
             if (working[i][j] == 1) { from[kk] = i; to[kk] = j; kk++; }
 
-    scores[0] = 1.0;
     size_t index = 1;
     uint64_t state = make_seed(seed);
     int ret = 0;
@@ -497,25 +521,22 @@ int bw_rewire_sparse_bipartite(size_t *from, size_t *to,
                                int verbose, size_t MAXITER,
                                uint64_t seed) {
     (void)nc;
-    /* Build CSR-like index: index[g]..index[g+1] = range of edges in row g */
-    size_t *index = malloc((nr + 1) * sizeof(size_t));
+    if (e < 2) return 0;
+    /* Build proper per-row CSR index: index[r]..index[r+1] = edge range for row r.
+       Zero-sum rows get an empty range. pos[i] = from[i] (actual row of edge i). */
+    size_t *index = calloc(nr + 1, sizeof(size_t));
     size_t *pos   = malloc(e * sizeof(size_t));
     if (!index || !pos) {
         free(index); free(pos);
         return -2;
     }
 
-    index[0] = 0;
-    pos[0] = 0;
-    size_t kk = 1, g = 0;
-    for (size_t i = 1; i < e; i++) {
-        if (from[i] != from[i - 1]) {
-            index[kk++] = i;
-            g++;
-        }
-        pos[i] = g;
-    }
-    index[nr] = e;
+    for (size_t i = 0; i < e; i++)
+        index[from[i] + 1]++;
+    for (size_t i = 1; i <= nr; i++)
+        index[i] += index[i - 1];
+    for (size_t i = 0; i < e; i++)
+        pos[i] = from[i];
 
     uint64_t state = make_seed(seed);
     int result = 0;
@@ -560,6 +581,7 @@ int bw_rewire_sparse(size_t *from, size_t *to, size_t *degree,
                      int verbose, size_t MAXITER,
                      uint64_t seed) {
     (void)nc;
+    if (e < 2) return 0;
     /* Build adjacency list representation for fast edge lookup */
     short **adj = malloc(nr * sizeof(short *));
     if (!adj) return -2;
