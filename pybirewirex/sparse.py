@@ -76,7 +76,12 @@ def _bipartite_to_coo(
             np.ascontiguousarray(col[order]),
             nrow,
             ncol,
-            {"input_type": "scipy", "fmt": fmt, "shape": (nrow, ncol), "dtype": coo.dtype},
+            {
+                "input_type": "scipy",
+                "fmt": fmt,
+                "shape": (nrow, ncol),
+                "dtype": coo.dtype,
+            },
         )
 
     if _is_networkx(graph):
