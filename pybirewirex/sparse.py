@@ -76,7 +76,7 @@ def _bipartite_to_coo(
             np.ascontiguousarray(col[order]),
             nrow,
             ncol,
-            {"input_type": "scipy", "fmt": fmt, "shape": (nrow, ncol)},
+            {"input_type": "scipy", "fmt": fmt, "shape": (nrow, ncol), "dtype": coo.dtype},
         )
 
     if _is_networkx(graph):
@@ -157,6 +157,7 @@ def _bipartite_to_coo(
                 "input_type": "dataframe",
                 "index": list(graph.index),
                 "columns": list(graph.columns),
+                "dtype": arr.dtype,
             },
         )
 
@@ -170,7 +171,7 @@ def _bipartite_from_coo(from_arr: np.ndarray, to_arr: np.ndarray, meta: dict) ->
 
         nrow, ncol = meta["shape"]
         e = len(from_arr)
-        data = np.ones(e, dtype=np.int8)
+        data = np.ones(e, dtype=meta["dtype"])
         mat = sp.coo_matrix(
             (data, (from_arr.astype(np.intp), to_arr.astype(np.intp))),
             shape=(nrow, ncol),
@@ -207,7 +208,7 @@ def _bipartite_from_coo(from_arr: np.ndarray, to_arr: np.ndarray, meta: dict) ->
         import pandas as pd  # noqa: PLC0415
 
         idx, cols = meta["index"], meta["columns"]
-        arr = np.zeros((len(idx), len(cols)), dtype=np.int16)
+        arr = np.zeros((len(idx), len(cols)), dtype=meta["dtype"])
         arr[from_arr.astype(np.intp), to_arr.astype(np.intp)] = 1
         return pd.DataFrame(arr, index=idx, columns=cols)
 
@@ -241,7 +242,7 @@ def _undirected_to_coo(
             np.ascontiguousarray(col),
             n,
             np.ascontiguousarray(deg_u),
-            {"input_type": "scipy", "fmt": fmt, "n": n},
+            {"input_type": "scipy", "fmt": fmt, "n": n, "dtype": graph.dtype},
         )
 
     if _is_networkx(graph):
@@ -298,7 +299,7 @@ def _undirected_to_coo(
             col,
             n,
             deg,
-            {"input_type": "dataframe", "index": list(graph.index)},
+            {"input_type": "dataframe", "index": list(graph.index), "dtype": arr.dtype},
         )
 
     raise TypeError(f"Unsupported graph type: {type(graph)!r}")
@@ -314,7 +315,7 @@ def _undirected_from_coo(
         n_nodes = meta["n"]
         r = np.concatenate([from_arr, to_arr]).astype(np.intp)
         c = np.concatenate([to_arr, from_arr]).astype(np.intp)
-        data = np.ones(len(r), dtype=np.int8)
+        data = np.ones(len(r), dtype=meta["dtype"])
         mat = sp.coo_matrix((data, (r, c)), shape=(n_nodes, n_nodes))
         return mat.asformat(meta["fmt"])
 
@@ -340,7 +341,7 @@ def _undirected_from_coo(
 
         idx = meta["index"]
         n_nodes = len(idx)
-        arr = np.zeros((n_nodes, n_nodes), dtype=np.int16)
+        arr = np.zeros((n_nodes, n_nodes), dtype=meta["dtype"])
         r = from_arr.astype(np.intp)
         c = to_arr.astype(np.intp)
         arr[r, c] = 1
